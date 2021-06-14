@@ -223,13 +223,41 @@ ggplot(inp_clean, aes(x = evotranspiracion)) +
           hovermode = "compare")
 ```
 
-
-## Including Plots
-
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
+## Parte 4
+```{r graficos comparación}
+plot_ly(data = inp_clean,
+         x = ~ fecha,
+         y = ~ temperatura, 
+         name = 'Temperatura °C', 
+         type = 'scatter',
+         mode = 'lines',
+         line = list(color = "red")) %>%
+   add_trace(y = ~ humedad_relativa,
+             name = 'Humedad (%vapor de agua perdido)',
+             mode = 'lines',
+             line = list(color = "cyan")) %>%
+   add_trace(y = ~ velocidad_viento,
+             name = 'Velocidad viento (m/s)',
+             mode = 'lines',
+             line = list(color = "gray")) %>%
+   add_trace(y = ~ lluvia,
+             name = 'LLuvia (mm)',
+             mode = 'lines',
+             line = list(color = "blue")) %>% 
+   add_trace(y = ~ irradiacion,
+             name = 'Irradiacion (Cy)',
+             mode = 'lines',
+             line = list(color = "yellow")) %>% 
+   add_trace(y = ~ evotranspiracion,
+             name = 'Evotranspiracion (% de humedad perdida)',
+             mode = 'lines',
+             line = list(color = "violet")) %>% 
+   layout(title = "Comparación de los datos diarios de Liberia (2015-2019) ",
+          yaxis = list(title = "Promedio"),
+          xaxis = list(title = "Fecha"),
+          legend = list(x = 0.1, y = 0.9),
+          hovermode = "compare")
+ 
 ```
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
