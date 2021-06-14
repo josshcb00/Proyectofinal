@@ -9,15 +9,220 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-## R Markdown
+# Parte 1
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+### Carga de librerias
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+Para iniciar el trabajo es necesario cargar las librerías que están destinadas a usarse para la modificación y graficación de datos, Esto se hace con el siguiente comando:
 
-```{r cars}
-summary(cars)
+
+```{r Cargar librerias, message=FALSE, warning=FALSE}
+library(ggplot2)
+library(dplyr)
+library(hrbrthemes)
+library(plotly)
 ```
+
+
+### Nuevo dataframe
+
+Ahora se crea un nuevo data frame con el archivo .csv brindado.
+
+
+```{r Carga de datos}
+inp <- read.csv("liberia_datos_climaticos.csv",sep = ",", na.strings = "", dec = ",")
+```
+
+### Comprobación de NA´s
+
+Esta función sirve para saber si el archivo posee celdas sin información.
+
+```{r Comprobar na}
+inp <- read.csv("liberia_datos_climaticos.csv",sep = ",", na.strings = "", dec = ",")
+```
+
+
+### Limpieza de NA´s
+
+Ahora bien, para limpiar esas celdas sin infromación se utiliza el siguiente comando:
+
+```{r Limpieza de datos}
+inp_clean <- na.omit(inp)
+```
+
+### Renombrar columnas
+
+Con el siguiente comando, se pueden renombrar las columnas, para tener una mayor facilidad al digitar sus nombres en comandos futuros.
+
+
+
+```{r Renombrar columnas}
+inp_clean <-
+  inp_clean %>%
+  rename(fecha = Date,
+         temperatura = Temperatura..Celsius.,
+         humedad_relativa = HumedadRelativa....,
+         velocidad_viento = VelocidadViento..m.s.,
+         lluvia = Lluvia..mm.,
+         irradiacion = Irradiacion..W.m2.,
+         evotranspiracion = "EvapoTranspiracion..mm.")
+```
+
+
+### Cambiar formato fecha, sacar promedio y sumatoria de columnas.
+
+Este comando funciona para que la fecha en las columnas, tenga un formato deseado para trabajar.
+
+
+```{r establecer formato fecha }
+Tempdate <- strptime(inp_clean[,1], format= "%d/%m/%Y")
+```
+
+Por otra parte, con estos se logra conocer el promedio y sumatoria de las variables deseadas.
+
+
+```{r Sumatoria y promedios variables}
+inp_monthtemp<- tapply(inp_clean[,2], format(Tempdate, format="%m/%Y"),FUN=mean)
+inp_monthhumedad<- tapply(inp_clean[,3], format(Tempdate, format="%m/%Y"),FUN=mean)
+inp_monthvelviento<- tapply(inp_clean[,4], format(Tempdate, format="%m/%Y"),FUN=mean)
+inp_monthlluvia<- tapply(inp_clean[,5], format(Tempdate, format="%m/%Y"),FUN=sum)
+inp_monthirradiacion<- tapply(inp_clean[,6], format(Tempdate, format="%m/%Y"),FUN=mean)
+inp_monthevotranspiracion<- tapply(inp_clean[,7], format(Tempdate, format="%m/%Y"),FUN=sum)
+```
+
+
+### Exportar csv 
+
+Ahora bien, para poder introducir archivos *data frame* se necesitan convertir los valores na archivos .csv, esto se logra con el siguiente comando para cada variable respectivamente:
+
+
+```{r cvs promedios }
+write.csv(rbind(inp_monthtemp), file="inp_monthtemp.csv")
+write.csv(rbind(inp_monthhumedad), file="inp_monthhumedad.csv")
+write.csv(rbind(inp_monthvelviento), file="inp_monthvelviento.csv")
+write.csv(rbind(inp_monthlluvia), file="inp_monthlluvia.csv")
+write.csv(rbind(inp_monthirradiacion), file="inp_monthirradiacion.csv")
+write.csv(rbind(inp_monthevotranspiracion), file="inp_monthevotranspiracion.csv")
+write.csv(rbind(inp_clean), file="inp_clean.csv")
+```
+
+### Crear dataframes de los promedios mensuales
+
+Una vez se tienen los archivos .csv, se introce este comando para creardataframes de ellos.
+
+```{r Crear data frame nuevos}
+df_inp_monthtemp <- read.csv("inp_monthtemp.csv",sep = ",", na.strings = "", dec = ",")
+df_inp_monthlluvia <- read.csv("inp_monthlluvia.csv",sep = ",", na.strings = "", dec = ",")
+df_inp_monthhumedad <- read.csv("inp_monthhumedad.csv",sep = ",", na.strings = "", dec = ",")
+df_inp_monthvelviento <- read.csv("inp_monthvelviento.csv",sep = ",", na.strings = "", dec = ",")
+df_inp_monthirradiacion <- read.csv("inp_monthirradiacion.csv",sep = ",", na.strings = "", dec = ",")
+df_inp_monthevotrans <- read.csv("inp_monthevotranspiracion.csv",sep = ",", na.strings = "", dec = ",")
+df_inpmonthfull <- read.csv("inp_monthfull.csv",sep = ",", na.strings = "", dec = ".")
+```
+
+
+# Parte 2
+
+### Graficación
+
+En esta sección se grafican las variables totales de los datos recolectados en Liberia
+
+
+```{r grafico temperatura, message=FALSE, warning=FALSE}
+ggplot(inp_clean, aes(x = temperatura)) +
+  geom_histogram(binwidth = 0.4,
+                 color = "black",
+                 fill = "orange") +
+  ggtitle("Temperatura de los datos en Liberia (2015-2019)") +
+  xlab("Temperatura °C") +
+  ylab("% Frecuencia") +
+  theme_ft_rc()
+
+ggplot(inp_clean, aes(x = humedad_relativa)) +
+  geom_histogram(binwidth = 3,
+                 color = "black",
+                 fill = "cyan") +
+  ggtitle("Humedad relativa de datos en Liberia (2015-2019)") +
+  xlab(" % Cantidad de vapor de agua") +
+  ylab("% Frecuencia") +
+  theme_ft_rc()
+
+ggplot(inp_clean, aes(x = velocidad_viento)) +
+  geom_histogram(binwidth = 0.6,
+                 color = "black",
+                 fill = "gray") +
+  ggtitle("Velocidad del viento de datos en Liberia (2015-2019)") +
+  xlab(" m/s") +
+  ylab("% Frecuencia") +
+  theme_ft_rc()
+
+ggplot(inp_clean, aes(x = lluvia)) +
+  geom_histogram(binwidth = 15,
+                 color = "black",
+                 fill = "blue") +
+  ggtitle("Cantidad de lluvia de datos en Liberia (2015-2019)") +
+  xlab(" mm") +
+  ylab("% Frecuencia") +
+  theme_ft_rc()
+
+ggplot(inp_clean, aes(x = irradiacion)) +
+  geom_histogram(binwidth = 40,
+                 color = "black",
+                 fill = "cyan") +
+  ggtitle("Irradiación de los datos en Liberia (2015-2019)") +
+  xlab(" Gy") +
+  ylab("% Frecuencia") +
+  theme_ft_rc()
+
+ggplot(inp_clean, aes(x = evotranspiracion)) +
+  geom_histogram(binwidth = 1.3,
+                 color = "black",
+                 fill = "violet") +
+  ggtitle("Evotranspiración de los datos en Liberia (2015-2019)") +
+  xlab(" % de humedad perdida") +
+  ylab("% Frecuencia") +
+  theme_ft_rc()
+```
+
+# Parte 3
+
+
+
+```{r Promedio todas variables, message=FALSE, warning=FALSE}
+ plot_ly(data = df_inpmonthfull,
+         x = ~ Fecha,
+         y = ~ Promedio_temperatura, 
+         name = 'Temperatura °C', 
+         type = 'scatter',
+         mode = 'lines',
+         line = list(color = "red")) %>%
+   add_trace(y = ~ Promedio_humedad,
+             name = 'Humedad (%vapor de agua perdido)',
+             mode = 'lines',
+             line = list(color = "cyan")) %>%
+   add_trace(y = ~ Promedio_vel_viento,
+             name = 'Velocidad viento (m/s)',
+             mode = 'lines',
+             line = list(color = "gray")) %>%
+   add_trace(y = ~ Suma_lluvia,
+             name = 'LLuvia (mm)',
+             mode = 'lines',
+             line = list(color = "blue")) %>% 
+   add_trace(y = ~ Promedio_iiradiacion,
+             name = 'Irradiacion (Cy)',
+             mode = 'lines',
+             line = list(color = "yellow")) %>% 
+   add_trace(y = ~ Suma_evotranspiracion,
+             name = 'Evotranspiracion (% de humedad perdida)',
+             mode = 'lines',
+             line = list(color = "violet")) %>% 
+   layout(title = "Promedios de datos de Liberia por mes (2015-2019) ",
+          yaxis = list(title = "Promedio"),
+          xaxis = list(title = "Fecha"),
+          legend = list(x = 0.1, y = 0.9),
+          hovermode = "compare")
+```
+
 
 ## Including Plots
 
