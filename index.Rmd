@@ -1,6 +1,6 @@
 ---
-title: "Proyecto final 01"
-author: "Josshua Cordero"
+title: "Proyecto 01"
+author: "Josshua Cordero Barboza, carné B92289"
 date: "13/6/2021"
 output: html_document
 ---
