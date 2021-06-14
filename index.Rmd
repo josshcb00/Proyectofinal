@@ -186,6 +186,7 @@ ggplot(inp_clean, aes(x = evotranspiracion)) +
 
 # Parte 3
 
+Esto es un comando que permite graficar todos los datos promediados respectivos que fueron recolectados en Liberia
 
 
 ```{r Promedio todas variables, message=FALSE, warning=FALSE}
@@ -224,6 +225,9 @@ ggplot(inp_clean, aes(x = evotranspiracion)) +
 ```
 
 ## Parte 4
+
+Esto es un comando que permite graficar todos los datos respectivos que fueron recolectados en Liberia
+
 ```{r graficos comparación}
 plot_ly(data = inp_clean,
          x = ~ fecha,
@@ -260,4 +264,3 @@ plot_ly(data = inp_clean,
  
 ```
 
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
